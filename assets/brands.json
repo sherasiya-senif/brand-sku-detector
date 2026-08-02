@@ -1,0 +1,22 @@
+[
+  { "name": "Coca-Cola", "aliases": ["Coca Cola", "Coke"] },
+  { "name": "Pepsi", "aliases": ["Pepsi Cola"] },
+  { "name": "Sprite", "aliases": [] },
+  { "name": "Fanta", "aliases": [] },
+  { "name": "Thums Up", "aliases": ["Thumbs Up"] },
+  { "name": "Lay's", "aliases": ["Lays"] },
+  { "name": "Kurkure", "aliases": [] },
+  { "name": "Bingo", "aliases": [] },
+  { "name": "Maggi", "aliases": [] },
+  { "name": "Nescafe", "aliases": ["Nescafé"] },
+  { "name": "Bru", "aliases": [] },
+  { "name": "Red Bull", "aliases": ["Redbull"] },
+  { "name": "Cadbury", "aliases": ["Dairy Milk"] },
+  { "name": "Nestle", "aliases": ["Nestlé"] },
+  { "name": "Britannia", "aliases": [] },
+  { "name": "Parle", "aliases": ["Parle-G", "Parle G"] },
+  { "name": "Amul", "aliases": [] },
+  { "name": "Kellogg's", "aliases": ["Kelloggs", "Kellogg"] },
+  { "name": "Horlicks", "aliases": [] },
+  { "name": "Bournvita", "aliases": [] }
+]
