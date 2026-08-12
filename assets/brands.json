@@ -5,7 +5,7 @@
   { "name": "Fanta", "aliases": [] },
   { "name": "Thums Up", "aliases": ["Thumbs Up"] },
   { "name": "Lay's", "aliases": ["Lays"] },
-  { "name": "Kurkure", "aliases": [] },
+  { "name": "Kurkure", "aliases": ["kurkur"] },
   { "name": "Bingo", "aliases": [] },
   { "name": "Maggi", "aliases": [] },
   { "name": "Nescafe", "aliases": ["Nescafé"] },
@@ -18,5 +18,6 @@
   { "name": "Amul", "aliases": [] },
   { "name": "Kellogg's", "aliases": ["Kelloggs", "Kellogg"] },
   { "name": "Horlicks", "aliases": [] },
-  { "name": "Bournvita", "aliases": [] }
+  { "name": "Bournvita", "aliases": [] },
+  { "name": "Doritos", "aliases": [] }
 ]

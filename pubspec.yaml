@@ -67,6 +67,7 @@ flutter:
   # change the tracked brands — no code changes required.
   assets:
     - assets/brands.json
+    - assets/battery_brands.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

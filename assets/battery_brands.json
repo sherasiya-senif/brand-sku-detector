@@ -1,0 +1,15 @@
+[
+  { "name": "Duracell", "aliases": [] },
+  { "name": "Eveready", "aliases": [] },
+  { "name": "Energizer", "aliases": [] },
+  { "name": "Nippo", "aliases": ["Nippo 1050"] },
+  { "name": "Amaron", "aliases": [] },
+  { "name": "Exide", "aliases": [] },
+  { "name": "Panasonic", "aliases": [] },
+  { "name": "Varta", "aliases": [] },
+  { "name": "Luminous", "aliases": [] },
+  { "name": "SF Sonic", "aliases": ["SF-Sonic"] },
+  { "name": "Okaya", "aliases": [] },
+  { "name": "Livguard", "aliases": [] },
+  { "name": "Solance", "aliases": ["sqlance"] }
+]

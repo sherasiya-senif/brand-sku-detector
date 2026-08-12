@@ -11,7 +11,17 @@ import '../services/ocr_service.dart';
 /// Lets a salesperson upload or capture a photo of an outlet's shelf and
 /// detects which tracked brands appear on it, fully on-device.
 class DetectorScreen extends StatefulWidget {
-  const DetectorScreen({super.key});
+  const DetectorScreen({
+    super.key,
+    this.title = 'Brand & SKU Detector',
+    this.assetPath = 'assets/brands.json',
+  });
+
+  /// Shown in the app bar.
+  final String title;
+
+  /// Path to the brand-dictionary JSON asset to detect against.
+  final String assetPath;
 
   @override
   State<DetectorScreen> createState() => _DetectorScreenState();
@@ -20,7 +30,8 @@ class DetectorScreen extends StatefulWidget {
 class _DetectorScreenState extends State<DetectorScreen> {
   final ImagePicker _picker = ImagePicker();
   final OcrService _ocr = OcrService();
-  final BrandRepository _brands = BrandRepository();
+  late final BrandRepository _brands =
+      BrandRepository(assetPath: widget.assetPath);
   final BrandDetector _detector = const BrandDetector();
 
   File? _image;
@@ -78,7 +89,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Brand & SKU Detector'),
+        title: Text(widget.title),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: SafeArea(

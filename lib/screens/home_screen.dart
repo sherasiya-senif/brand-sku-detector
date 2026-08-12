@@ -1,0 +1,182 @@
+import 'package:flutter/material.dart';
+
+import 'detector_screen.dart';
+
+/// A brand dictionary the detector can run against, backed by a JSON asset.
+class BrandCatalog {
+  const BrandCatalog({
+    required this.label,
+    required this.assetPath,
+    required this.icon,
+  });
+
+  final String label;
+  final String assetPath;
+  final IconData icon;
+}
+
+/// Catalogs available to detect against. Add an entry here (and register the
+/// asset in pubspec.yaml) to expose a new brand dictionary.
+const List<BrandCatalog> kCatalogs = [
+  BrandCatalog(
+    label: 'General Brands',
+    assetPath: 'assets/brands.json',
+    icon: Icons.storefront_outlined,
+  ),
+  BrandCatalog(
+    label: 'Battery Brands',
+    assetPath: 'assets/battery_brands.json',
+    icon: Icons.battery_full_outlined,
+  ),
+];
+
+/// Landing screen that lists the available ways to detect brands.
+/// Each feature is shown as a tappable box; more can be added over time.
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  Future<void> _openDetector(BuildContext context) async {
+    final catalog = await showModalBottomSheet<BrandCatalog>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+              child: Text(
+                'Select a brand catalog',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            for (final catalog in kCatalogs)
+              ListTile(
+                leading: Icon(catalog.icon),
+                title: Text(catalog.label),
+                onTap: () => Navigator.of(context).pop(catalog),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (catalog == null || !context.mounted) return;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DetectorScreen(
+          title: catalog.label,
+          assetPath: catalog.assetPath,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final features = <_Feature>[
+      _Feature(
+        title: 'Shelf Photo Detector',
+        subtitle: 'Capture or upload a shelf photo to detect brands',
+        icon: Icons.photo_camera_outlined,
+        onTap: _openDetector,
+      ),
+      // Add more detection features here as they are built.
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Brand SKU Detector'),
+      ),
+      body: SafeArea(
+        child: GridView.count(
+          padding: const EdgeInsets.all(16),
+          crossAxisCount: 2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 1,
+          children: [
+            for (final feature in features) _FeatureBox(feature: feature),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Feature {
+  const _Feature({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Future<void> Function(BuildContext context) onTap;
+}
+
+class _FeatureBox extends StatelessWidget {
+  const _FeatureBox({required this.feature});
+
+  final _Feature feature;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () => feature.onTap(context),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: scheme.primaryContainer,
+                child: Icon(
+                  feature.icon,
+                  color: scheme.onPrimaryContainer,
+                  size: 28,
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    feature.title,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    feature.subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
