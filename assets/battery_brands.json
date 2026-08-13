@@ -1,40 +1,40 @@
 [
-  { "name": "Solance", "aliases": [], "misreads": ["sulance", "sqlance", "solence", "salance", "soiance", "5olance"], "skus": [] },
-  { "name": "Electrent", "aliases": [], "misreads": ["electrant", "eiectrent", "electreni", "electient"], "skus": [] },
-  { "name": "Elektro", "aliases": [], "misreads": ["eiektro", "elektra", "elekiro", "e1ektro"], "skus": [] },
-  { "name": "Amaron", "aliases": [], "misreads": ["arnaron", "amaran", "amoron", "amaroa"], "skus": [
+  { "name": "Solance", "aliases": [], "misreads": [], "skus": [] },
+  { "name": "Electrent", "aliases": [], "misreads": [], "skus": [] },
+  { "name": "Elektro", "aliases": [], "misreads": [], "skus": [] },
+  { "name": "Amaron", "aliases": [], "misreads": ["arnaron"], "skus": [
     { "name": "Flo", "aliases": [], "misreads": [] },
     { "name": "Go", "aliases": [], "misreads": [] },
     { "name": "Pro", "aliases": [], "misreads": [] },
     { "name": "Harvest", "aliases": [], "misreads": [] },
     { "name": "Black", "aliases": [], "misreads": [] }
   ] },
-  { "name": "Exide", "aliases": [], "misreads": ["exlde", "ex1de", "eside", "exlee"], "skus": [
+  { "name": "Exide", "aliases": [], "misreads": ["exlee"], "skus": [
     { "name": "Xpress", "aliases": [], "misreads": [] },
     { "name": "Matrix", "aliases": [], "misreads": [] },
     { "name": "Mileage", "aliases": [], "misreads": [] },
     { "name": "EKO", "aliases": [], "misreads": [] },
     { "name": "Xplore", "aliases": [], "misreads": [] }
   ] },
-  { "name": "Panasonic", "aliases": [], "misreads": ["panasonlc", "panason1c", "panosonic", "ponasonic"], "skus": [] },
-  { "name": "Luminous", "aliases": [], "misreads": ["lumlnous", "iuminous", "lurninous", "lumlnaus"], "skus": [
+  { "name": "Panasonic", "aliases": [], "misreads": [], "skus": [] },
+  { "name": "Luminous", "aliases": [], "misreads": [], "skus": [
     { "name": "RedCharge", "aliases": ["Red Charge"], "misreads": [] },
     { "name": "InverLast", "aliases": ["Inver Last"], "misreads": [] },
     { "name": "Shakti Charge", "aliases": ["ShaktiCharge"], "misreads": [] }
   ] },
-  { "name": "SF Sonic", "aliases": ["SF-Sonic", "SF"], "misreads": ["sf sonlc", "sf son1c", "5f sonic", "sf sonlic"], "skus": [
+  { "name": "SF Sonic", "aliases": ["SF-Sonic", "SF"], "misreads": [], "skus": [
     { "name": "Flash Start", "aliases": ["FlashStart"], "misreads": [] },
     { "name": "Longlife", "aliases": ["Long Life"], "misreads": [] }
   ] },
-  { "name": "Livguard", "aliases": [], "misreads": ["unguard", "livquard", "iivguard", "livguord", "llvguard"], "skus": [
+  { "name": "Livguard", "aliases": [], "misreads": ["unguard"], "skus": [
     { "name": "Xtreme", "aliases": [], "misreads": [] }
   ] },
-  { "name": "Energizer", "aliases": [], "misreads": ["energlzer", "eneraizer", "energizor", "enervizer"], "skus": [] },
-  { "name": "Massimo", "aliases": [], "misreads": ["masslmo", "massirno", "rnassimo", "massmo"], "skus": [
+  { "name": "Energizer", "aliases": [], "misreads": [], "skus": [] },
+  { "name": "Massimo", "aliases": [], "misreads": ["massirno", "rnassimo"], "skus": [
     { "name": "Speedo", "aliases": [], "misreads": [] }
   ] },
   { "name": "BSPL", "aliases": [], "misreads": ["3SPL", "35PL", "9SPL", "8SPL", "BSPI", "RSPL", "BSP1"], "skus": [] },
   { "name": "Invo", "aliases": ["Invo Power"], "misreads": ["lnvo", "1nvo", "inva", "invn"], "skus": [] },
   { "name": "NPP", "aliases": [], "misreads": ["MPP", "NPR", "HPP", "NFP", "N9P"], "skus": [] },
-  { "name": "Okaya", "aliases": [], "misreads": ["okoya", "0kaya", "okoyo", "0koya", "ORaya"], "skus": [] }
+  { "name": "Okaya", "aliases": [], "misreads": ["okoyo", "0koya"], "skus": [] }
 ]
