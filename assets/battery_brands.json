@@ -13,9 +13,12 @@
     { "name": "Xpress", "aliases": [], "misreads": [] },
     { "name": "Matrix", "aliases": [], "misreads": [] },
     { "name": "Mileage", "aliases": [], "misreads": [] },
-    { "name": "EKO", "aliases": [], "misreads": [] },
+    { "name": "EKO", "aliases": [], "misreads": ["EKD"] },
     { "name": "Xplore", "aliases": [], "misreads": [] },
-    { "name": "Drive", "aliases": [], "misreads": [] }
+    { "name": "Drive", "aliases": [], "misreads": [] },
+    { "name": "Eezy", "aliases": [], "misreads": [] },
+    { "name": "Humsafar", "aliases": ["Humafar"], "misreads": [] },
+    { "name": "Home", "aliases": [], "misreads": ["HOAAME"] }
   ] },
   { "name": "Panasonic", "aliases": [], "misreads": [], "skus": [] },
   { "name": "Luminous", "aliases": [], "misreads": [], "skus": [
@@ -32,7 +35,8 @@
   ] },
   { "name": "Energizer", "aliases": [], "misreads": [], "skus": [] },
   { "name": "Massimo", "aliases": [], "misreads": ["massirno", "rnassimo"], "skus": [
-    { "name": "Speedo", "aliases": [], "misreads": [] }
+    { "name": "Speedo", "aliases": [], "misreads": [] },
+    { "name": "Urban", "aliases": [], "misreads": [] }
   ] },
   { "name": "BSPL", "aliases": [], "misreads": ["3SPL", "35PL", "9SPL", "8SPL", "BSPI", "RSPL", "BSP1"], "skus": [] },
   { "name": "Invo", "aliases": ["Invo Power"], "misreads": ["lnvo", "1nvo", "inva", "invn"], "skus": [] },
