@@ -91,4 +91,37 @@ void main() {
       expect(results.last.isFuzzy, isTrue);
     });
   });
+
+  group('sku detection', () {
+    final exide = Brand(
+      name: 'Exide',
+      skus: const [
+        BrandSku(name: 'Express'),
+        BrandSku(name: 'Matrix'),
+      ],
+    );
+
+    test('reports a detected SKU for a detected brand', () {
+      final results = detector.detect(['EXIDE EXPRESS', '12V 7AH'], [exide]);
+      expect(results.single.skus, ['Express']);
+    });
+
+    test('reports multiple SKUs, only those present', () {
+      final results =
+          detector.detect(['EXIDE MATRIX', 'EXIDE EXPRESS'], [exide]);
+      expect(results.single.skus, containsAll(['Express', 'Matrix']));
+      expect(results.single.skus.length, 2);
+    });
+
+    test('no SKU listed when only the brand is present', () {
+      final results = detector.detect(['EXIDE battery'], [exide]);
+      expect(results.single.skus, isEmpty);
+    });
+
+    test('SKU is not reported when its brand is absent', () {
+      // "Express" present but no Exide brand token → brand not detected at all.
+      final results = detector.detect(['some express delivery'], [exide]);
+      expect(results, isEmpty);
+    });
+  });
 }

@@ -12,9 +12,14 @@ class BrandResult {
     required this.brandName,
     required this.count,
     this.isFuzzy = false,
+    this.skus = const [],
   });
 
   final String brandName;
   final int count;
   final bool isFuzzy;
+
+  /// Detected product line / model names for this brand (e.g. "Express" for
+  /// Exide). Empty when none were recognized or the catalog has no SKUs.
+  final List<String> skus;
 }

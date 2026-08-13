@@ -327,6 +327,14 @@ class _DetectorScreenState extends State<DetectorScreen> {
           color: r.isFuzzy ? likelyColor : null,
         ),
         title: Text(r.brandName),
+        subtitle: r.skus.isEmpty
+            ? null
+            : Text(
+                'SKU: ${r.skus.join(' · ')}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -41,6 +41,19 @@ void main() {
     expect(agg.results().length, 2);
   });
 
+  test('unions SKUs for a brand across photos', () {
+    final agg = ResultAggregator()
+      ..add([const BrandResult(brandName: 'Exide', count: 1, skus: ['Express'])])
+      ..add([
+        const BrandResult(brandName: 'Exide', count: 1, skus: ['Matrix', 'Express'])
+      ]);
+
+    final exide = agg.results().single;
+    expect(exide.skus, containsAll(['Express', 'Matrix']));
+    expect(exide.skus.length, 2); // deduped
+    expect(exide.count, 2);
+  });
+
   test('sorts confident first, then by count, then by name', () {
     final agg = ResultAggregator()
       ..add([

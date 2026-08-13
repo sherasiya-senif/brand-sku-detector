@@ -25,44 +25,33 @@ class BrandDetector {
 
     final results = <BrandResult>[];
     for (final brand in brands) {
-      // Normalize + dedupe terms so a name and an equivalent alias
-      // (e.g. "Coca-Cola" and "Coca Cola") aren't counted twice.
-      final terms = <String>{
-        for (final term in brand.matchTerms) _normalize(term),
-      }..removeWhere((t) => t.isEmpty);
+      final terms = _orderedTerms(brand.matchTerms);
       if (terms.isEmpty) continue;
 
-      // Match longer (more specific) terms first at each position.
-      final orderedTerms = terms.toList()
-        ..sort((a, b) => b.length.compareTo(a.length));
+      final match = _matchTerms(tokenizedLines, terms);
+      final total = match.exact + match.fuzzy;
+      if (total == 0) continue;
 
-      var exactCount = 0;
-      var fuzzyCount = 0;
-      for (final tokens in tokenizedLines) {
-        for (var start = 0; start < tokens.length; start++) {
-          // Count this brand at most once per starting position: the first term
-          // that matches wins, so a brand's own terms don't stack on one word.
-          for (final term in orderedTerms) {
-            final distance = _matchDistanceAt(tokens, start, term);
-            if (distance == null) continue;
-            if (distance == 0) {
-              exactCount++;
-            } else {
-              fuzzyCount++;
-            }
-            break;
-          }
+      // Brand is present — now look for which of its SKUs (product lines) also
+      // appear. SKU words are generic, so we only attribute them to a brand we
+      // already detected.
+      final detectedSkus = <String>[];
+      for (final sku in brand.skus) {
+        final skuTerms = _orderedTerms(sku.matchTerms);
+        if (skuTerms.isEmpty) continue;
+        final skuMatch = _matchTerms(tokenizedLines, skuTerms);
+        if (skuMatch.exact + skuMatch.fuzzy > 0 &&
+            !detectedSkus.contains(sku.name)) {
+          detectedSkus.add(sku.name);
         }
       }
 
-      final total = exactCount + fuzzyCount;
-      if (total > 0) {
-        results.add(BrandResult(
-          brandName: brand.name,
-          count: total,
-          isFuzzy: exactCount == 0,
-        ));
-      }
+      results.add(BrandResult(
+        brandName: brand.name,
+        count: total,
+        isFuzzy: match.exact == 0,
+        skus: detectedSkus,
+      ));
     }
 
     results.sort((a, b) {
@@ -72,6 +61,41 @@ class BrandDetector {
       return byCount != 0 ? byCount : a.brandName.compareTo(b.brandName);
     });
     return results;
+  }
+
+  /// Normalizes + dedupes [rawTerms] and orders them longest-first so more
+  /// specific (multi-word) terms are tried before short ones at each position.
+  List<String> _orderedTerms(List<String> rawTerms) {
+    final terms = <String>{
+      for (final term in rawTerms) _normalize(term),
+    }..removeWhere((t) => t.isEmpty);
+    return terms.toList()..sort((a, b) => b.length.compareTo(a.length));
+  }
+
+  /// Counts exact and fuzzy matches of [orderedTerms] across [tokenizedLines].
+  ({int exact, int fuzzy}) _matchTerms(
+    List<List<String>> tokenizedLines,
+    List<String> orderedTerms,
+  ) {
+    var exact = 0;
+    var fuzzy = 0;
+    for (final tokens in tokenizedLines) {
+      for (var start = 0; start < tokens.length; start++) {
+        // Count at most once per starting position: the first term that
+        // matches wins, so a term set's own terms don't stack on one word.
+        for (final term in orderedTerms) {
+          final distance = _matchDistanceAt(tokens, start, term);
+          if (distance == null) continue;
+          if (distance == 0) {
+            exact++;
+          } else {
+            fuzzy++;
+          }
+          break;
+        }
+      }
+    }
+    return (exact: exact, fuzzy: fuzzy);
   }
 
   /// Returns the edit distance if [term] matches the window of [tokens] starting

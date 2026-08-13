@@ -23,6 +23,7 @@ class ResultAggregator {
           brandName: r.brandName,
           count: existing.count + r.count,
           isFuzzy: existing.isFuzzy && r.isFuzzy,
+          skus: {...existing.skus, ...r.skus}.toList(),
         );
       }
     }
