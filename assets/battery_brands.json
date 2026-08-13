@@ -14,7 +14,8 @@
     { "name": "Matrix", "aliases": [], "misreads": [] },
     { "name": "Mileage", "aliases": [], "misreads": [] },
     { "name": "EKO", "aliases": [], "misreads": [] },
-    { "name": "Xplore", "aliases": [], "misreads": [] }
+    { "name": "Xplore", "aliases": [], "misreads": [] },
+    { "name": "Drive", "aliases": [], "misreads": [] }
   ] },
   { "name": "Panasonic", "aliases": [], "misreads": [], "skus": [] },
   { "name": "Luminous", "aliases": [], "misreads": [], "skus": [
