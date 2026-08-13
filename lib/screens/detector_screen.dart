@@ -8,6 +8,7 @@ import '../services/brand_detector.dart';
 import '../services/brand_repository.dart';
 import '../services/ocr_service.dart';
 import '../services/result_aggregator.dart';
+import 'camera_capture_screen.dart';
 
 /// Lets a salesperson capture one or more photos of an outlet's shelf and
 /// detects which tracked brands appear across them, fully on-device.
@@ -42,7 +43,6 @@ class _DetectorScreenState extends State<DetectorScreen> {
 
   final List<File> _images = [];
   final List<String> _rawByPhoto = []; // one photo's joined OCR text per entry
-  final Set<String> _photoHashes = {}; // content hashes, to skip duplicates
   bool _busy = false;
   bool _hasRun = false;
   List<BrandResult> _results = const [];
@@ -57,10 +57,9 @@ class _DetectorScreenState extends State<DetectorScreen> {
   Future<void> _pickFromGallery() async {
     if (_busy) return;
     try {
-      final picked = await _picker.pickMultiImage(
-        maxWidth: 2000,
-        imageQuality: 90,
-      );
+      // No downscale (maxWidth) and near-lossless quality: keep as much detail
+      // as possible so small shelf text stays legible for OCR.
+      final picked = await _picker.pickMultiImage(imageQuality: 100);
       if (picked.isEmpty) return; // user cancelled
       await _processPicked(picked);
     } catch (e) {
@@ -70,31 +69,21 @@ class _DetectorScreenState extends State<DetectorScreen> {
     }
   }
 
-  /// Captures a single photo from the camera and adds it to the session.
+  /// Captures a photo with the in-app camera (max sensor resolution) and adds
+  /// it to the session.
   Future<void> _captureFromCamera() async {
     if (_busy) return;
-    try {
-      final picked = await _picker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 2000,
-        imageQuality: 90,
-      );
-      if (picked == null) return; // user cancelled
-      await _processPicked([picked]);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _busy = false);
-      _showError('Could not capture the photo: $e');
-    }
+    final picked = await Navigator.of(context).push<XFile>(
+      MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+    );
+    if (picked == null || !mounted) return; // user backed out
+    await _processPicked([picked]);
   }
 
   /// Runs OCR + detection on each picked file and folds the results into the
   /// running session, updating the UI after every photo.
   Future<void> _processPicked(List<XFile> picked) async {
-    setState(() {
-      _images.addAll(picked.map((x) => File(x.path)));
-      _busy = true;
-    });
+    setState(() => _busy = true);
     try {
       final brands = await _brands.loadBrands();
       for (final x in picked) {
@@ -102,6 +91,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
         _aggregator.add(_detector.detect(lines, brands));
         if (!mounted) return;
         setState(() {
+          _images.add(File(x.path));
           _rawByPhoto.add(lines.join('\n'));
           _results = _aggregator.results();
           _hasRun = true;
@@ -282,6 +272,8 @@ class _DetectorScreenState extends State<DetectorScreen> {
                 width: 130,
                 height: 130,
                 fit: BoxFit.cover,
+                // Decode the thumbnail small; OCR still reads the full-res file.
+                cacheWidth: 260,
               ),
             ),
           ),

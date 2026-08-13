@@ -35,8 +35,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # Pick a shelf photo from the gallery or capture one with the camera.
+  # Pick a shelf photo from the gallery.
   image_picker: ">=1.1.0 <1.2.3"
+
+  # In-app camera capture at maximum sensor resolution (ResolutionPreset.max),
+  # for the sharpest possible OCR input.
+  camera: ^0.11.0
 
   # On-device (offline) OCR used to read printed text off the shelf photo.
   google_mlkit_text_recognition: ^0.15.0
