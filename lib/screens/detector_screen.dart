@@ -226,17 +226,50 @@ class _DetectorScreenState extends State<DetectorScreen> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
-        ..._results.map(
-          (r) => Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              leading: const Icon(Icons.check_circle_outline),
-              title: Text(r.brandName),
-              trailing: Chip(label: Text('${r.count}×')),
-            ),
-          ),
-        ),
+        ..._results.map(_buildResultCard),
       ],
+    );
+  }
+
+  Widget _buildResultCard(BrandResult r) {
+    // Confident matches stay clean (just the check + count). Fuzzy-only matches
+    // get an amber "Likely" chip so they can be quickly verified.
+    final likelyColor = Colors.amber.shade800;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(
+          r.isFuzzy ? Icons.error_outline : Icons.check_circle_outline,
+          color: r.isFuzzy ? likelyColor : null,
+        ),
+        title: Text(r.brandName),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (r.isFuzzy) ...[
+              _statusChip('Likely', likelyColor),
+              const SizedBox(width: 8),
+            ],
+            Chip(label: Text('${r.count}×')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Compact tonal status chip (e.g. "Likely") in [color].
+  Widget _statusChip(String label, Color color) {
+    return Chip(
+      label: Text(label),
+      labelStyle: TextStyle(
+        color: color,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      backgroundColor: color.withValues(alpha: 0.12),
+      side: BorderSide(color: color.withValues(alpha: 0.5)),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

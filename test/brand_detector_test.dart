@@ -42,4 +42,53 @@ void main() {
     expect(results.first.brandName, 'Coca-Cola');
     expect(results.first.count, 2);
   });
+
+  group('fuzzy matching', () {
+    final fuzzyBrands = [
+      const Brand(name: 'Energizer'),
+      const Brand(name: 'Coca-Cola', aliases: ['Coca Cola', 'Coke']),
+      const Brand(name: 'Bru'),
+    ];
+
+    test('single-char OCR error matches and is flagged fuzzy', () {
+      // "energlzer" is "energizer" with i->l (edit distance 1).
+      final results = detector.detect(['energlzer 9v'], fuzzyBrands);
+      final energizer =
+          results.firstWhere((r) => r.brandName == 'Energizer');
+      expect(energizer.count, 1);
+      expect(energizer.isFuzzy, isTrue);
+    });
+
+    test('exact read is not flagged fuzzy', () {
+      final results = detector.detect(['ENERGIZER'], fuzzyBrands);
+      final energizer =
+          results.firstWhere((r) => r.brandName == 'Energizer');
+      expect(energizer.isFuzzy, isFalse);
+    });
+
+    test('multi-word brand matches with a fuzzy window', () {
+      // "coca cala" is "coca cola" with o->a (edit distance 1).
+      final results = detector.detect(['coca cala 500ml'], fuzzyBrands);
+      final coke = results.firstWhere((r) => r.brandName == 'Coca-Cola');
+      expect(coke.count, 1);
+      expect(coke.isFuzzy, isTrue);
+    });
+
+    test('short names stay exact-only (no false positive)', () {
+      // "brush" is edit distance 2 from "bru" but Bru is 3 chars => threshold 0.
+      final results = detector.detect(['brush and comb', 'bra'], fuzzyBrands);
+      expect(results.any((r) => r.brandName == 'Bru'), isFalse);
+    });
+
+    test('confident matches sort before possible ones', () {
+      final results = detector.detect(['pepsi energlzer'], [
+        const Brand(name: 'Pepsi'),
+        const Brand(name: 'Energizer'),
+      ]);
+      expect(results.first.brandName, 'Pepsi'); // exact before fuzzy
+      expect(results.first.isFuzzy, isFalse);
+      expect(results.last.brandName, 'Energizer');
+      expect(results.last.isFuzzy, isTrue);
+    });
+  });
 }
