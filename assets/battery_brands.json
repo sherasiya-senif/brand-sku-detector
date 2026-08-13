@@ -1,15 +1,16 @@
 [
-  { "name": "Duracell", "aliases": [] },
-  { "name": "Eveready", "aliases": [] },
-  { "name": "Energizer", "aliases": [] },
-  { "name": "Nippo", "aliases": ["Nippo 1050"] },
+  { "name": "Solance", "aliases": ["sulance", "sqlance"] },
+  { "name": "Electrent", "aliases": [] },
+  { "name": "Elektro", "aliases": [] },
   { "name": "Amaron", "aliases": [] },
   { "name": "Exide", "aliases": [] },
   { "name": "Panasonic", "aliases": [] },
-  { "name": "Varta", "aliases": [] },
   { "name": "Luminous", "aliases": [] },
-  { "name": "SF Sonic", "aliases": ["SF-Sonic"] },
-  { "name": "Okaya", "aliases": [] },
-  { "name": "Livguard", "aliases": [] },
-  { "name": "Solance", "aliases": ["sqlance"] }
+  { "name": "SF Sonic", "aliases": ["SF-Sonic", "SF"] },
+  { "name": "Livguard", "aliases": ["unguard"] },
+  { "name": "Energizer", "aliases": [] },
+  { "name": "Massimo", "aliases": [] },
+  { "name": "BSPL", "aliases": ["3SPL", "35PL", "9SPL"] },
+  { "name": "Invo", "aliases": ["Invo Power"] },
+  { "name": "NPP", "aliases": [] }
 ]

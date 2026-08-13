@@ -38,6 +38,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
   bool _busy = false;
   bool _hasRun = false;
   List<BrandResult> _results = const [];
+  List<String> _rawLines = const [];
 
   @override
   void dispose() {
@@ -60,6 +61,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
         _busy = true;
         _hasRun = false;
         _results = const [];
+        _rawLines = const [];
       });
 
       final lines = await _ocr.recognizeLines(picked.path);
@@ -69,6 +71,7 @@ class _DetectorScreenState extends State<DetectorScreen> {
       if (!mounted) return;
       setState(() {
         _results = results;
+        _rawLines = lines;
         _hasRun = true;
         _busy = false;
       });
@@ -77,6 +80,32 @@ class _DetectorScreenState extends State<DetectorScreen> {
       setState(() => _busy = false);
       _showError('Could not process the image: $e');
     }
+  }
+
+  void _showRawText() {
+    final text =
+        _rawLines.isEmpty ? 'No text was recognized.' : _rawLines.join('\n');
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Raw recognized text'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: SelectableText(
+              text,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showError(String message) {
@@ -101,6 +130,14 @@ class _DetectorScreenState extends State<DetectorScreen> {
               _buildActionButtons(),
               const SizedBox(height: 16),
               _buildImagePreview(),
+              if (_hasRun) ...[
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _showRawText,
+                  icon: const Icon(Icons.text_snippet_outlined),
+                  label: const Text('View raw text'),
+                ),
+              ],
               const SizedBox(height: 16),
               _buildResults(),
             ],
