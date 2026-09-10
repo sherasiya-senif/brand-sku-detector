@@ -2,6 +2,12 @@
     <!-- Capture shelf photos with the camera. Gallery access is handled by
          image_picker without an extra permission on modern Android. -->
     <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Draw the floating "assistance ball" overlay over other apps. Granted
+         manually by the user via the system overlay-permission settings. The
+         overlay is hosted by a foreground service (declared below). -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
     <application
         android:label="brand_sku_detector"
         android:name="${applicationName}"
@@ -38,6 +44,17 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
+        <!-- Foreground service that hosts the assistance-ball overlay window
+             (from the flutter_overlay_window plugin). specialUse is the fit for
+             a persistent user-facing floating control. -->
+        <service
+            android:name="flutter.overlay.window.flutter_overlay_window.OverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating assistance ball to quickly open the SKU detector over other apps" />
+        </service>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

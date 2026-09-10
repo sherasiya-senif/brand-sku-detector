@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../services/assistance_ball_service.dart';
 import 'detector_screen.dart';
+
+/// Controls the Android floating "assistance ball" overlay.
+const AssistanceBallService _assistanceBall = AssistanceBallService();
 
 /// A brand dictionary the detector can run against, backed by a JSON asset.
 class BrandCatalog {
@@ -75,6 +79,25 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _toggleAssistanceBall(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    void notify(String message) =>
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+
+    if (!_assistanceBall.isSupported) {
+      notify('The assistance ball is available on Android only');
+      return;
+    }
+
+    if (!await _assistanceBall.ensurePermission()) {
+      notify('Overlay permission is required to show the assistance ball');
+      return;
+    }
+
+    final active = await _assistanceBall.toggle();
+    notify(active ? 'Assistance ball turned on' : 'Assistance ball turned off');
+  }
+
   @override
   Widget build(BuildContext context) {
     final features = <_Feature>[
@@ -83,6 +106,12 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'Capture or upload a shelf photo to detect brands',
         icon: Icons.photo_camera_outlined,
         onTap: _openDetector,
+      ),
+      _Feature(
+        title: 'Assistance Ball',
+        subtitle: 'Floating button over other apps; tap to open the detector',
+        icon: Icons.blur_circular_outlined,
+        onTap: _toggleAssistanceBall,
       ),
       // Add more detection features here as they are built.
     ];

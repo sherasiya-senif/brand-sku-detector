@@ -45,6 +45,15 @@ dependencies:
   # On-device (offline) OCR used to read printed text off the shelf photo.
   google_mlkit_text_recognition: ^0.15.0
 
+  # Android "assistance ball": a floating overlay button (SYSTEM_ALERT_WINDOW)
+  # that stays visible over other apps. Wraps the overlay permission gate,
+  # foreground service, TYPE_APPLICATION_OVERLAY window, and drag handling.
+  flutter_overlay_window: ^0.4.5
+
+  # Fire an Android intent from the overlay isolate to bring this app to the
+  # foreground when the floating ball is tapped.
+  android_intent_plus: ^5.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
