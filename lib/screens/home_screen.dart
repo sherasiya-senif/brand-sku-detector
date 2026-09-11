@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../services/assistance_ball_service.dart';
+import '../services/assistance_bubble_service.dart';
 import 'detector_screen.dart';
 
 /// Controls the Android floating "assistance ball" overlay.
 const AssistanceBallService _assistanceBall = AssistanceBallService();
+
+/// Controls the Android conversation "assistance bubble".
+const AssistanceBubbleService _assistanceBubble = AssistanceBubbleService();
 
 /// A brand dictionary the detector can run against, backed by a JSON asset.
 class BrandCatalog {
@@ -98,6 +102,29 @@ class HomeScreen extends StatelessWidget {
     notify(active ? 'Assistance ball turned on' : 'Assistance ball turned off');
   }
 
+  Future<void> _showAssistanceBubble(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    void notify(String message) =>
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+
+    if (!await _assistanceBubble.isSupported()) {
+      notify('Bubbles need Android 11 or newer');
+      return;
+    }
+    if (!await _assistanceBubble.ensureNotificationPermission()) {
+      notify('Notification permission is required for the bubble');
+      return;
+    }
+
+    await _assistanceBubble.showBubble();
+
+    if (await _assistanceBubble.areBubblesAllowed()) {
+      notify('Assistance bubble posted');
+    } else {
+      notify('Enable bubbles for this app in Settings > Notifications');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final features = <_Feature>[
@@ -112,6 +139,12 @@ class HomeScreen extends StatelessWidget {
         subtitle: 'Floating button over other apps; tap to open the detector',
         icon: Icons.blur_circular_outlined,
         onTap: _toggleAssistanceBall,
+      ),
+      _Feature(
+        title: 'Assistance Bubble',
+        subtitle: 'System chat bubble (Android 11+) that opens the detector',
+        icon: Icons.chat_bubble_outline,
+        onTap: _showAssistanceBubble,
       ),
       // Add more detection features here as they are built.
     ];

@@ -48,3 +48,9 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Conversation bubble APIs: NotificationCompat.BubbleMetadata,
+    // ShortcutManagerCompat, Person, IconCompat (Method 2 — Assistance Bubble).
+    implementation("androidx.core:core-ktx:1.13.1")
+}
