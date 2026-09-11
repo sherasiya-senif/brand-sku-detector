@@ -95,7 +95,7 @@ class HomeScreen extends StatelessWidget {
     }
 
     final style = await loadBallStyle();
-    final active = await _assistanceBall.isActive();
+    final enabled = await _assistanceBall.isEnabled();
     if (!context.mounted) return;
 
     await showModalBottomSheet<void>(
@@ -104,7 +104,7 @@ class HomeScreen extends StatelessWidget {
       isScrollControlled: true,
       builder: (_) => _AssistanceBallSheet(
         initialStyle: style,
-        initiallyActive: active,
+        initiallyEnabled: enabled,
         onNotify: notify,
       ),
     );
@@ -256,12 +256,12 @@ class _FeatureBox extends StatelessWidget {
 class _AssistanceBallSheet extends StatefulWidget {
   const _AssistanceBallSheet({
     required this.initialStyle,
-    required this.initiallyActive,
+    required this.initiallyEnabled,
     required this.onNotify,
   });
 
   final BallStyle initialStyle;
-  final bool initiallyActive;
+  final bool initiallyEnabled;
   final void Function(String message) onNotify;
 
   @override
@@ -270,31 +270,36 @@ class _AssistanceBallSheet extends StatefulWidget {
 
 class _AssistanceBallSheetState extends State<_AssistanceBallSheet> {
   late BallStyle _style = widget.initialStyle;
-  late bool _active = widget.initiallyActive;
+  late bool _enabled = widget.initiallyEnabled;
   bool _busy = false;
 
   Future<void> _applyStyle(BallStyle style) async {
     setState(() => _style = style);
     await saveBallStyle(style);
-    if (_active) {
-      await _assistanceBall.sendStyle(style); // live update
-    }
+    // Live-update only takes effect if the ball is actually on screen right now
+    // (i.e. app in background); harmless otherwise.
+    await _assistanceBall.sendStyle(style);
   }
 
   Future<void> _toggle() async {
     setState(() => _busy = true);
     try {
-      if (!_active) {
+      if (!_enabled) {
+        // Enabling: make sure we can draw the overlay. Don't show it now — the
+        // ball only appears once the app leaves the foreground.
         if (!await _assistanceBall.ensurePermission()) {
           widget.onNotify('Overlay permission is required for the ball');
           return;
         }
+        await _assistanceBall.setEnabled(true);
+        if (mounted) setState(() => _enabled = true);
+        widget.onNotify('Ball on — it appears when you leave the app');
+      } else {
+        await _assistanceBall.setEnabled(false);
+        await _assistanceBall.hide();
+        if (mounted) setState(() => _enabled = false);
+        widget.onNotify('Assistance ball turned off');
       }
-      final nowActive = await _assistanceBall.toggle();
-      if (mounted) setState(() => _active = nowActive);
-      widget.onNotify(
-        nowActive ? 'Assistance ball turned on' : 'Assistance ball turned off',
-      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -354,13 +359,21 @@ class _AssistanceBallSheetState extends State<_AssistanceBallSheet> {
                   ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            Text(
+              'The ball shows only when you leave the app, and hides when you '
+              'come back.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: _busy ? null : _toggle,
-                icon: Icon(_active ? Icons.visibility_off : Icons.visibility),
-                label: Text(_active ? 'Turn off ball' : 'Turn on ball'),
+                icon: Icon(_enabled ? Icons.visibility_off : Icons.visibility),
+                label: Text(_enabled ? 'Turn off ball' : 'Turn on ball'),
               ),
             ),
           ],

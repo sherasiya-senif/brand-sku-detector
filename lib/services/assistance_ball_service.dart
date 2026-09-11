@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../overlays/ball_style.dart';
 
@@ -10,8 +11,24 @@ import '../overlays/ball_style.dart';
 class AssistanceBallService {
   const AssistanceBallService();
 
+  static const String _kEnabledKey = 'ball_enabled';
+
   /// Overlay windows are Android-only.
   bool get isSupported => Platform.isAndroid;
+
+  /// Whether the user has enabled the ball. When enabled, the ball is shown only
+  /// while the app is NOT in the foreground (see the lifecycle handling in
+  /// main.dart) — it appears when you leave the app and hides when you return.
+  Future<bool> isEnabled() async {
+    if (!isSupported) return false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kEnabledKey) ?? false;
+  }
+
+  Future<void> setEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kEnabledKey, value);
+  }
 
   /// Whether the floating ball is currently shown.
   Future<bool> isActive() async {
@@ -32,9 +49,12 @@ class AssistanceBallService {
     return await FlutterOverlayWindow.isPermissionGranted();
   }
 
-  /// Shows the floating ball. Assumes permission has already been granted.
+  /// Shows the floating ball. No-ops if the overlay permission isn't granted
+  /// (so it's safe to call from the background lifecycle handler).
   Future<void> show() async {
     if (!isSupported) return;
+    if (!await FlutterOverlayWindow.isPermissionGranted()) return;
+    if (await FlutterOverlayWindow.isActive()) return;
     await FlutterOverlayWindow.showOverlay(
       enableDrag: true,
       overlayTitle: 'Assistance Ball',
