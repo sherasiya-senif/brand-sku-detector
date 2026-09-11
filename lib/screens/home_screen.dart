@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../overlays/ball_style.dart';
 import '../services/assistance_ball_service.dart';
 import '../services/assistance_bubble_service.dart';
 import 'detector_screen.dart';
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _toggleAssistanceBall(BuildContext context) async {
+  Future<void> _openAssistanceBallSheet(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     void notify(String message) =>
         messenger.showSnackBar(SnackBar(content: Text(message)));
@@ -93,13 +94,20 @@ class HomeScreen extends StatelessWidget {
       return;
     }
 
-    if (!await _assistanceBall.ensurePermission()) {
-      notify('Overlay permission is required to show the assistance ball');
-      return;
-    }
+    final style = await loadBallStyle();
+    final active = await _assistanceBall.isActive();
+    if (!context.mounted) return;
 
-    final active = await _assistanceBall.toggle();
-    notify(active ? 'Assistance ball turned on' : 'Assistance ball turned off');
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _AssistanceBallSheet(
+        initialStyle: style,
+        initiallyActive: active,
+        onNotify: notify,
+      ),
+    );
   }
 
   Future<void> _showAssistanceBubble(BuildContext context) async {
@@ -136,9 +144,9 @@ class HomeScreen extends StatelessWidget {
       ),
       _Feature(
         title: 'Assistance Ball',
-        subtitle: 'Floating button over other apps; tap to open the detector',
+        subtitle: 'Floating button over other apps; customize color & icon',
         icon: Icons.blur_circular_outlined,
-        onTap: _toggleAssistanceBall,
+        onTap: _openAssistanceBallSheet,
       ),
       _Feature(
         title: 'Assistance Bubble',
@@ -237,6 +245,199 @@ class _FeatureBox extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet to customize the assistance ball's color/icon and turn it
+/// on/off. Changes apply live when the ball is currently active.
+class _AssistanceBallSheet extends StatefulWidget {
+  const _AssistanceBallSheet({
+    required this.initialStyle,
+    required this.initiallyActive,
+    required this.onNotify,
+  });
+
+  final BallStyle initialStyle;
+  final bool initiallyActive;
+  final void Function(String message) onNotify;
+
+  @override
+  State<_AssistanceBallSheet> createState() => _AssistanceBallSheetState();
+}
+
+class _AssistanceBallSheetState extends State<_AssistanceBallSheet> {
+  late BallStyle _style = widget.initialStyle;
+  late bool _active = widget.initiallyActive;
+  bool _busy = false;
+
+  Future<void> _applyStyle(BallStyle style) async {
+    setState(() => _style = style);
+    await saveBallStyle(style);
+    if (_active) {
+      await _assistanceBall.sendStyle(style); // live update
+    }
+  }
+
+  Future<void> _toggle() async {
+    setState(() => _busy = true);
+    try {
+      if (!_active) {
+        if (!await _assistanceBall.ensurePermission()) {
+          widget.onNotify('Overlay permission is required for the ball');
+          return;
+        }
+      }
+      final nowActive = await _assistanceBall.toggle();
+      if (mounted) setState(() => _active = nowActive);
+      widget.onNotify(
+        nowActive ? 'Assistance ball turned on' : 'Assistance ball turned off',
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Assistance ball', style: theme.textTheme.titleMedium),
+                const Spacer(),
+                // Live preview.
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Color(_style.color),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(_style.icon, color: Colors.white, size: 24),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('Color', style: theme.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              children: [
+                for (final c in kBallColors)
+                  _SwatchDot(
+                    color: Color(c),
+                    selected: _style.color == c,
+                    onTap: () => _applyStyle(_style.copyWith(color: c)),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text('Icon', style: theme.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              children: [
+                for (final entry in kBallIcons.entries)
+                  _IconChoice(
+                    icon: entry.value,
+                    selected: _style.iconKey == entry.key,
+                    onTap: () => _applyStyle(_style.copyWith(iconKey: entry.key)),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _busy ? null : _toggle,
+                icon: Icon(_active ? Icons.visibility_off : Icons.visibility),
+                label: Text(_active ? 'Turn off ball' : 'Turn on ball'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SwatchDot extends StatelessWidget {
+  const _SwatchDot({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      onTap: onTap,
+      radius: 28,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected
+                ? Theme.of(context).colorScheme.onSurface
+                : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: selected
+            ? const Icon(Icons.check, color: Colors.white, size: 20)
+            : null,
+      ),
+    );
+  }
+}
+
+class _IconChoice extends StatelessWidget {
+  const _IconChoice({
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkResponse(
+      onTap: onTap,
+      radius: 28,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected ? scheme.primary : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
         ),
       ),
     );

@@ -55,7 +55,7 @@
             android:allowEmbedded="true"
             android:resizeableActivity="true"
             android:documentLaunchMode="always"
-            android:theme="@android:style/Theme.Material.Light" />
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <!-- Foreground service that hosts the assistance-ball overlay window
              (from the flutter_overlay_window plugin). specialUse is the fit for
              a persistent user-facing floating control. -->

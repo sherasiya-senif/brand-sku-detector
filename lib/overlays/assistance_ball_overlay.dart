@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+
+import 'ball_style.dart';
 
 /// Launcher component of this app. Keep in sync with `applicationId` /
 /// `namespace` in android/app/build.gradle.kts if it is ever changed.
@@ -34,14 +38,25 @@ class _AssistanceBallOverlayState extends State<AssistanceBallOverlay>
     with WidgetsBindingObserver {
   bool _expanded = false;
 
+  /// Current ball look, pushed from the app isolate via shareData.
+  BallStyle _style = BallStyle.defaults;
+  StreamSubscription<dynamic>? _dataSub;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // The app isolate sends {'color': int, 'icon': String} via shareData.
+    _dataSub = FlutterOverlayWindow.overlayListener.listen((event) {
+      if (event is Map && mounted) {
+        setState(() => _style = BallStyle.fromMap(event));
+      }
+    });
   }
 
   @override
   void dispose() {
+    _dataSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -111,12 +126,12 @@ class _AssistanceBallOverlayState extends State<AssistanceBallOverlay>
           child: Container(
             width: 56,
             height: 56,
-            decoration: const BoxDecoration(
-              color: Colors.deepPurple,
+            decoration: BoxDecoration(
+              color: Color(_style.color),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.storefront_outlined,
+            child: Icon(
+              _style.icon,
               color: Colors.white,
               size: 28,
             ),

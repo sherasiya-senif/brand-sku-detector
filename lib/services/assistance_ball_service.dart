@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
+import '../overlays/ball_style.dart';
+
 /// Controls the Android "assistance ball" floating overlay (Method 1 —
 /// SYSTEM_ALERT_WINDOW). Thin wrapper over flutter_overlay_window so the UI
 /// layer never touches the plugin directly.
@@ -46,6 +48,20 @@ class AssistanceBallService {
       height: 130,
       width: 130,
     );
+    // Push the saved color/icon to the overlay isolate. Send immediately and
+    // again shortly after, to beat the overlay engine's boot race.
+    final style = await loadBallStyle();
+    await sendStyle(style);
+    Future<void>.delayed(
+      const Duration(milliseconds: 300),
+      () => sendStyle(style),
+    );
+  }
+
+  /// Sends the given style to the running overlay (live update).
+  Future<void> sendStyle(BallStyle style) async {
+    if (!isSupported) return;
+    await FlutterOverlayWindow.shareData(style.toMap());
   }
 
   /// Removes the floating ball.

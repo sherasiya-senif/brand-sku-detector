@@ -54,6 +54,9 @@ dependencies:
   # foreground when the floating ball is tapped.
   android_intent_plus: ^5.0.0
 
+  # Persist the user's chosen assistance-ball color/icon across app restarts.
+  shared_preferences: ^2.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
